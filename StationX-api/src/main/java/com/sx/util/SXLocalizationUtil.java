@@ -2,6 +2,7 @@ package com.sx.util;
 
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.util.Validator;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -10,15 +11,17 @@ import java.util.Map;
 
 public class SXLocalizationUtil {
 	static public Map<Locale, String> jsonToLocalizedMap( JSONObject localizedJson ){
-		Iterator<String> langs = localizedJson.keys();
 		Map<Locale, String> map = new HashMap<>();
-		
-		while( langs.hasNext() ) {
-			String lang = langs.next();
-			map.put(
-					Locale.forLanguageTag(lang), 
-					localizedJson.getString(lang)
-			);
+
+		if(Validator.isNotNull(localizedJson)) {
+			Iterator<String> langs = localizedJson.keys();
+			while( langs.hasNext() ) {
+				String lang = langs.next();
+				map.put(
+						Locale.forLanguageTag(lang), 
+						localizedJson.getString(lang)
+				);
+			}
 		}
 		
 		return map;
