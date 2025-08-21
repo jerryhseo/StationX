@@ -14,6 +14,8 @@ public class StationXWebKeys {
 	public static final String DATA_STRUCTURE = "dataStructure";
 	public static final String DATATYPE = "dataType";
 	public static final String DATATYPE_DISPLAY_CONTEXT = "dataTypeDisplayContext";
+	public static final String DATACOLLECTION_ID = "dataCollectionId";
+	public static final String DATASET_ID = "dataSetId";
 	public static final String DATATYPE_ID = "dataTypeId";
 	public static final String DATATYPE_IDS = "dataTypeIds";
 	public static final String DELTA = "delta";
@@ -82,4 +84,5 @@ public class StationXWebKeys {
 	public static final String WORKBENCH_NAME= "workbenchName";
 	public static final String WORKBENCH_NAMESPACE= "workbenchNamespace";
 	public static final String WORKING_PORTLET_NAME = "workingPortletName";
+	public static final String WORKING_PORTLET_PARAMS = "workingPortletParams";
 }
