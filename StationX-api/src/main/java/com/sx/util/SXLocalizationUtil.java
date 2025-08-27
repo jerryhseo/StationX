@@ -30,8 +30,10 @@ public class SXLocalizationUtil {
 	static public JSONObject mapToLocalizedJSON( Map<Locale, String> localizedMap){
 		JSONObject json = JSONFactoryUtil.createJSONObject();
 		
-		for( Map.Entry<Locale, String> entry : localizedMap.entrySet() ) {
-			json.put(entry.getKey().toLanguageTag(), entry.getValue());
+		if(Validator.isNotNull(localizedMap)) {
+			for( Map.Entry<Locale, String> entry : localizedMap.entrySet() ) {
+				json.put(entry.getKey().toLanguageTag(), entry.getValue());
+			}
 		}
 		
 		return json;
