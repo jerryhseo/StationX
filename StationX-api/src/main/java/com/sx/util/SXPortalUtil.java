@@ -16,9 +16,12 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.sx.util.portlet.SXPortletURLUtil;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Random;
 
 import javax.portlet.PortletModeException;
@@ -31,6 +34,8 @@ import org.osgi.service.component.annotations.Reference;
 public class SXPortalUtil {
 	@Reference
 	private static DLAppService _dlAppService;
+	
+	private static String STATIONX_DATA_DIR_KEY = "stationx-data-dir";
 	
 	public static final String getAuthToken( PortletRequest portletRequest ) {
 		HttpServletRequest httpServletRequest = PortalUtil.getOriginalServletRequest(PortalUtil.getHttpServletRequest(portletRequest) );
@@ -76,6 +81,14 @@ public class SXPortalUtil {
 		}
 		
 		return randomString.toString();
+	}
+	
+	public static final Path getDataDirPath( long companyId, long groupId, String strPath ) {
+		Path dataBasePath = Paths.get( PropsUtil.get(STATIONX_DATA_DIR_KEY) );
+		
+		Path path = dataBasePath.resolve(companyId + "/"+groupId+"/"+strPath);
+		
+		return path;
 	}
 	
 	@Deprecated

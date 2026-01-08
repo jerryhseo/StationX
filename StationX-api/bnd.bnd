@@ -1,5 +1,5 @@
 Bundle-Name: StationX-api
 Bundle-SymbolicName: com.sx.global.util
-Bundle-Version: 5.1.0
+Bundle-Version: 2.0.1
 Export-Package: \
 	com.sx.*
