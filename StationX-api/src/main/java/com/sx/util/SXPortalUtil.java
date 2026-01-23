@@ -6,6 +6,7 @@ import com.liferay.document.library.kernel.service.DLAppLocalServiceUtil;
 import com.liferay.document.library.kernel.service.DLAppService;
 import com.liferay.document.library.kernel.service.DLAppServiceUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.portlet.LiferayPortletMode;
@@ -15,11 +16,19 @@ import com.liferay.portal.kernel.security.auth.AuthTokenUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.sx.util.portlet.SXPortletURLUtil;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Random;
@@ -89,6 +98,47 @@ public class SXPortalUtil {
 		Path path = dataBasePath.resolve(companyId + "/"+groupId+"/"+strPath);
 		
 		return path;
+	}
+	
+	/**
+	 * 
+	 * @param uploadRequest
+	 * @param fields
+	 * @param baseDir
+	 * @return
+	 */
+	public static final JSONArray saveFiles( UploadPortletRequest uploadRequest, String[] fields, Path baseDir) {
+		JSONArray errorFiles = JSONFactoryUtil.createJSONArray();
+		
+		for(String fileField : fields) {
+			String[] fileNames = uploadRequest.getFileNames(fileField);
+			String contentType = uploadRequest.getContentType(fileField);
+			File[] files = uploadRequest.getFiles(fileField);
+			
+			if( Validator.isNotNull(files)) {
+				for(int i=0; i<files.length; i++) {
+					File file = files[i];
+					String fileName = fileNames[i];
+					System.out.println("FileName: " + file.getName());
+					System.out.println("fileField: "+fileField + ",  : " + fileName +", "+contentType+", "+file.length() );
+					
+					// Choose where to save it
+					Path destinationPath = baseDir.resolve( fileName);
+
+					// Copy file to destination
+					try ( InputStream in = new FileInputStream(file) ){
+						Files.copy(in, destinationPath);
+					} catch ( IOException e ) {
+						JSONObject errorFile = JSONFactoryUtil.createJSONObject();
+						errorFile.put("fileName", file.getName());
+						errorFile.put("error", "duplicated");
+						errorFiles.put(errorFile);
+					}
+				}
+			}
+		}
+		
+		return errorFiles;
 	}
 	
 	@Deprecated
