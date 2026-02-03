@@ -1,6 +1,7 @@
 package com.sx.util.portlet;
 
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
 import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
@@ -9,12 +10,17 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.Validator;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Map;
 
 import javax.portlet.PortletMode;
 import javax.portlet.PortletModeException;
 import javax.portlet.PortletRequest;
+import javax.portlet.PortletResponse;
 import javax.portlet.PortletURL;
+import javax.portlet.ResourceRequest;
+import javax.portlet.ResourceResponse;
 import javax.portlet.WindowState;
 import javax.portlet.WindowStateException;
 import javax.servlet.http.HttpServletRequest;
@@ -99,5 +105,13 @@ public class SXPortletURLUtil {
 		url.setWindowState(windowState);
 		
 		return url.toString(); 
+	}
+	
+	public static final void responeAjax( ResourceResponse response, JSONObject result) throws IOException {
+		PrintWriter pw;
+		pw = response.getWriter();
+		pw.write(result.toJSONString());
+		pw.flush();
+		pw.close();
 	}
 }
