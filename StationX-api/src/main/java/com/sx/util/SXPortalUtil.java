@@ -2,7 +2,6 @@ package com.sx.util;
 
 import com.liferay.document.library.kernel.model.DLFolder;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
-import com.liferay.document.library.kernel.service.DLAppLocalServiceUtil;
 import com.liferay.document.library.kernel.service.DLAppService;
 import com.liferay.document.library.kernel.service.DLAppServiceUtil;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -27,11 +26,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Random;
+import java.util.stream.Stream;
 
 import javax.portlet.PortletModeException;
 import javax.portlet.PortletRequest;
@@ -106,11 +106,12 @@ public class SXPortalUtil {
 	 * @param fields
 	 * @param baseDir
 	 * @return
+	 * 		JSON
 	 */
-	public static final JSONArray saveFiles( UploadPortletRequest uploadRequest, String[] fields, Path baseDir) {
+	public static final JSONArray UploadFieldFiles( UploadPortletRequest uploadRequest, String[] upLoadFields, Path baseDir) {
 		JSONArray errorFiles = JSONFactoryUtil.createJSONArray();
 		
-		for(String fileField : fields) {
+		for(String fileField : upLoadFields) {
 			String[] fileNames = uploadRequest.getFileNames(fileField);
 			String contentType = uploadRequest.getContentType(fileField);
 			File[] files = uploadRequest.getFiles(fileField);
@@ -139,6 +140,103 @@ public class SXPortalUtil {
 		}
 		
 		return errorFiles;
+	}
+	
+	public static final JSONArray saveUploadFieldFiles( UploadPortletRequest uploadRequest, String uploadFieldName, Path baseDir) {
+		JSONArray errorFiles = JSONFactoryUtil.createJSONArray();
+		
+		String[] fileNames = uploadRequest.getFileNames(uploadFieldName);
+		String contentType = uploadRequest.getContentType(uploadFieldName);
+		File[] files = uploadRequest.getFiles(uploadFieldName);
+		
+		if( Validator.isNotNull(files)) {
+			for(int i=0; i<files.length; i++) {
+				File file = files[i];
+				String fileName = fileNames[i];
+				System.out.println("FileName: " + file.getName());
+				System.out.println("fileField: "+uploadFieldName + ",  : " + fileName +", "+contentType+", "+file.length() );
+				
+				// Choose where to save it
+				Path destinationPath = baseDir.resolve( fileName);
+
+				// Copy file to destination
+				try ( InputStream in = new FileInputStream(file) ){
+					Files.copy(in, destinationPath);
+				} catch ( IOException e ) {
+					JSONObject errorFile = JSONFactoryUtil.createJSONObject();
+					errorFile.put("fileName", file.getName());
+					errorFile.put("error", "duplicated");
+					errorFiles.put(errorFile);
+				}
+			}
+		}
+		
+		return errorFiles;
+	}
+	
+	/**
+	 *  Empty all child folders and files of the folderPath. If folderPath doesn't exit,
+	 *  it creates the folder including all parent folders to reach the folder.
+	 *  
+	 * @param folderPath
+	 * @param create
+	 */
+	public static final void emptyFolder( Path folderPath, boolean create ) {
+		if( Files.exists(folderPath) ) {
+			try (Stream<Path> walk = Files.walk(folderPath)) {
+		        walk
+		            .filter(path -> !path.equals(folderPath))   // skip the folder itself
+		            .sorted((a, b) -> b.compareTo(a))       // delete children before parents
+		            .forEach(path -> {
+		                try {
+		                    Files.delete(path);
+		                } catch (Exception e) {
+		                    throw new RuntimeException(e);
+		                }
+		            });
+		    }  catch( IOException e ) {
+				e.printStackTrace();
+			}
+		} else {
+			try{
+				Files.createDirectories(folderPath);
+			} catch (IOException e ) {
+				e.printStackTrace();
+			} ;
+		}
+	}
+	
+	public static final boolean isFolderEmpty( Path folderPath ) throws IOException {
+		 DirectoryStream<Path> dirStream = Files.newDirectoryStream(folderPath);
+		 
+		 return !dirStream.iterator().hasNext();
+	}
+	
+	/**
+	 * Delete the folderPath, even if the folder has children folders or files.
+	 *  
+	 * @param folderPath
+	 */
+	public static final void deleteFolder( Path folderPath ) {
+		if( Files.exists(folderPath) ) {
+			emptyFolder(folderPath, false);
+			
+			try {
+				Files.delete(folderPath);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public static final void deleteFile( Path filePath ) {
+		if( Files.exists(filePath) ) {
+			try {
+				Files.delete(filePath);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	@Deprecated
