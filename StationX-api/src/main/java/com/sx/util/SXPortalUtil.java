@@ -20,7 +20,7 @@ import com.liferay.portal.kernel.util.WebKeys;
 import com.sx.util.portlet.SXPortletURLUtil;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Random;
+import java.security.SecureRandom;
 import javax.portlet.PortletModeException;
 import javax.portlet.PortletRequest;
 import javax.portlet.WindowStateException;
@@ -71,7 +71,7 @@ public class SXPortalUtil {
 		String alphanumericCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
 
 		StringBuffer randomString = new StringBuffer ( length );
-		Random random = new Random ();
+		SecureRandom random = new SecureRandom ();
 
 		for ( int i = 0; i < length; i++ ) {
 			int randomIndex = random.nextInt ( alphanumericCharacters.length () );

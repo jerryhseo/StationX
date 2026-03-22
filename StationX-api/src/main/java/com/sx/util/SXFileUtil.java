@@ -185,8 +185,8 @@ public final class SXFileUtil {
 		}
 	}
 
-	public static final List<String> lookUpFolder ( Path folderPath ) {
-		List<String> fileList = new ArrayList<> ();
+	public static final List<Path> lookUpFolder ( Path folderPath ) {
+		List<Path> fileList = new ArrayList<> ();
 
 		System.out.println ( "dataFileFolderPath: " + folderPath );
 		if ( Files.notExists ( folderPath ) ) {
@@ -196,9 +196,7 @@ public final class SXFileUtil {
 		try ( DirectoryStream<Path> stream = Files.newDirectoryStream ( folderPath )) {
 			for ( Path entry : stream ) {
 				if ( Files.isRegularFile ( entry ) ) {
-					System.out.println ( entry.getFileName () );
-
-					fileList.add ( entry.getFileName ().toString () );
+					fileList.add ( entry );
 				}
 			}
 		} catch ( IOException e ) {
